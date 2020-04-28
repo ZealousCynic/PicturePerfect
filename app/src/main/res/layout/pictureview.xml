@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:maxHeight="300dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/placeholder"
+        android:layout_marginTop="10dp"
+        />
+
+    <Button
+        android:id="@+id/buttonTake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/btn_take_Text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
+
+    <TextView
+        android:id="@+id/dominantColortext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="DOMINANT COLOR"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonTake" />
+
+    <Button
+        android:id="@+id/buttonCalculate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/btn_calculate_Text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dominantColortext" />
+
+    <ImageView
+        android:id="@+id/dominantColorView00"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:maxHeight="50dp"
+        android:layout_marginLeft="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
+        tools:srcCompat="@drawable/placeholder" />
+
+    <ImageView
+        android:id="@+id/dominantColorView01"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:maxHeight="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toEndOf="@+id/dominantColorView00"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
+        tools:srcCompat="@drawable/placeholder" />
+
+    <ImageView
+        android:id="@+id/dominantColorView02"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:maxHeight="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toEndOf="@+id/dominantColorView01"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
+        tools:srcCompat="@drawable/placeholder" />
+
+    <ImageView
+        android:id="@+id/dominantColorView03"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:maxHeight="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toEndOf="@+id/dominantColorView02"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
+        tools:srcCompat="@drawable/placeholder" />
+
+    <ImageView
+        android:id="@+id/dominantColorView04"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:maxHeight="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toEndOf="@+id/dominantColorView03"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
+        tools:srcCompat="@drawable/placeholder" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
