@@ -24,11 +24,9 @@ public class ColorCalculator implements IColorCalculator {
 
         Map hashmap = getHashMap();
 
-        int[] mostFrequent = findMostFrequent(hashmap);
+        Integer mostFrequent = findMostFrequent(hashmap);
 
-        int toRet = createColorInt(mostFrequent);
-
-        return toRet;
+        return mostFrequent;
     }
 
     @Override
@@ -36,9 +34,7 @@ public class ColorCalculator implements IColorCalculator {
 
         Map hashmap = getHashMap();
 
-        int[][] mostFrequent = new int[amount][3];
-
-        //amount is also used as a counter -- instantiate arrays early
+        Integer[] mostFrequent = new Integer[amount];
         int[] toRet = new int[amount];
 
         while(amount > 0) {
@@ -47,15 +43,8 @@ public class ColorCalculator implements IColorCalculator {
             amount--;
         }
 
-        int color;
-
-        for(int i = toRet.length; i > 0; i--) {
-
-            color  = createColorInt(mostFrequent[amount]);
-
-            toRet[i - 1] = color;
-            amount++;
-        }
+        for(int i = 0; i < toRet.length; i++)
+            toRet[i] = mostFrequent[i];
 
         return toRet;
     }
@@ -64,23 +53,17 @@ public class ColorCalculator implements IColorCalculator {
 
         int[] pixels = getBitmapPixels(toSearch);
 
-        int[][] rgbArrays;
-        rgbArrays = new int[pixels.length][3];
-
-        for(int i = 0; i < pixels.length; i++)
-            rgbArrays[i] = getRGBFromPixel(pixels[i]);
-
-        Map hashmap = mapRGBColors(rgbArrays);
+        Map hashmap = mapColors(pixels);
 
         return hashmap;
     }
 
-    private int[] findMostFrequent(Map<int[], Integer> hashmap) {
+    private Integer findMostFrequent(Map<Integer, Integer> hashmap) {
 
-        int[] res = new int[] {-1,-1,-1};
+        Integer res = -1;
         int highest_frequency = 0;
 
-        for(Map.Entry<int[], Integer> val : hashmap.entrySet())
+        for(Map.Entry<Integer, Integer> val : hashmap.entrySet())
         {
             if(highest_frequency < val.getValue()){
                 res = val.getKey();
@@ -91,7 +74,7 @@ public class ColorCalculator implements IColorCalculator {
         return res;
     }
 
-    void removeMostFrequent(Map<int[], Integer> hashmap, int[] key) {
+    void removeMostFrequent(Map<Integer, Integer> hashmap, Integer key) {
 
         Set keyset = new HashSet();
         keyset.add(key);
@@ -99,12 +82,12 @@ public class ColorCalculator implements IColorCalculator {
         hashmap.keySet().removeAll(keyset);
     }
 
-    private Map<int[], Integer> mapRGBColors(int[][] rgbArrays) {
-        Map<int[], Integer> hashmap = new HashMap<int[], Integer>();
+    private Map<Integer, Integer> mapColors(int[] colorArray) {
+        Map<Integer, Integer> hashmap = new HashMap<Integer, Integer>();
 
-        for(int i = 0; i <rgbArrays.length; i++)
+        for(int i = 0; i <colorArray.length; i++)
         {
-            int[] key = rgbArrays[i];
+            Integer key = colorArray[i];
             if(hashmap.containsKey(key)) {
                 int frequency = hashmap.get(key);
                 frequency++;
@@ -115,15 +98,6 @@ public class ColorCalculator implements IColorCalculator {
         }
 
         return hashmap;
-    }
-
-    private int[] getRGBFromPixel(int pixel) {
-        int alpha = (pixel >> 24) & 0xff;
-        int r = (pixel >> 16) & 0xff;
-        int g = (pixel >> 8) & 0xff;
-        int b = (pixel) & 0xff;
-
-        return new int[]{r,g,b};
     }
 
     private int createColorInt(int[] toConvert) {
