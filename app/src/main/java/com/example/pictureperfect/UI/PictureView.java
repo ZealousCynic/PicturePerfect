@@ -128,10 +128,7 @@ public class PictureView extends Fragment implements PictureContracts.PictureVie
 
             IBitmap map = new AndroidBitmap(scaled);
 
-            int[] dominantColors = presenter.getDominantColors(map, 5);
-
-            updateDominantColorsText(dominantColors);
-            updateDominantColors(dominantColors);
+            presenter.getDominantColors(map, 5);
         }
         else
             updateDominantColorsText(new int[] {-5, -5, -5, -5, -5});

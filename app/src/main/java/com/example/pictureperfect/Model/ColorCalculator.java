@@ -3,43 +3,58 @@ package com.example.pictureperfect.Model;
 import com.example.pictureperfect.Model.Abstractions.IBitmap;
 import com.example.pictureperfect.Model.Abstractions.IColorCalculator;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class ColorCalculator implements IColorCalculator {
 
     private IBitmap toSearch;
 
-    public IBitmap getBitmap() {return toSearch;}
-    public void setBitmap(IBitmap bitmap) { toSearch = bitmap;}
+    private BitMapper bmapper;
+    private ColorMapper cmapper;
+
+    int currentBatch;
+    private int batchSize;
+
+    int[] pixels;
+    List<Integer> pixellist;
+    Map<Integer, Integer> _hashmap;
 
     public ColorCalculator(IBitmap bitmap) {
         toSearch = bitmap;
+        bmapper = new BitMapper();
+        cmapper = new ColorMapper();
+        _hashmap = new ConcurrentHashMap<Integer, Integer>();
     }
 
     @Override
-    public int getDominantColor() {
+    public int getDominantColor() throws ExecutionException, InterruptedException {
 
-        Map hashmap = getHashMap();
+        Map hashmap = getHashMapThreaded();
 
-        Integer mostFrequent = findMostFrequent(hashmap);
+        Integer mostFrequent = cmapper.getMostFrequent(hashmap);
 
         return mostFrequent;
     }
 
     @Override
-    public int[] getDominantColors(int amount) {
+    public int[] getDominantColors(int amount) throws ExecutionException, InterruptedException {
 
-        Map hashmap = getHashMap();
+        getHashMapThreaded();
 
         Integer[] mostFrequent = new Integer[amount];
         int[] toRet = new int[amount];
 
         while(amount > 0) {
-            mostFrequent[amount - 1] = findMostFrequent(hashmap);
-            removeMostFrequent(hashmap, mostFrequent[amount - 1]);
+            mostFrequent[amount - 1] = cmapper.getMostFrequent(_hashmap);
             amount--;
         }
 
@@ -49,75 +64,68 @@ public class ColorCalculator implements IColorCalculator {
         return toRet;
     }
 
-    Map<int[], Integer> getHashMap() {
+    final Map<Integer, Integer> getHashMap() {
+        pixels = bmapper.getBitmapPixels(toSearch);
 
-        int[] pixels = getBitmapPixels(toSearch);
-
-        Map hashmap = mapColors(pixels);
-
-        return hashmap;
-    }
-
-    private Integer findMostFrequent(Map<Integer, Integer> hashmap) {
-
-        Integer res = -1;
-        int highest_frequency = 0;
-
-        for(Map.Entry<Integer, Integer> val : hashmap.entrySet())
-        {
-            if(highest_frequency < val.getValue()){
-                res = val.getKey();
-                highest_frequency = val.getValue();
-            }
-        }
-
-        return res;
-    }
-
-    void removeMostFrequent(Map<Integer, Integer> hashmap, Integer key) {
-
-        Set keyset = new HashSet();
-        keyset.add(key);
-
-        hashmap.keySet().removeAll(keyset);
-    }
-
-    private Map<Integer, Integer> mapColors(int[] colorArray) {
-        Map<Integer, Integer> hashmap = new HashMap<Integer, Integer>();
-
-        for(int i = 0; i <colorArray.length; i++)
-        {
-            Integer key = colorArray[i];
-            if(hashmap.containsKey(key)) {
-                int frequency = hashmap.get(key);
-                frequency++;
-                hashmap.put(key, frequency);
-            }
-            else
-                hashmap.put(key, 1);
-        }
+        Map hashmap = cmapper.mapColors(pixels);
 
         return hashmap;
     }
+
+    final Map<Integer, Integer> getHashMapThreaded() throws ExecutionException, InterruptedException {
+
+        initialize();
+
+        //THREADS
+
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        List<Future> futures = new ArrayList<Future>();
+
+        futures.add(executor.submit(new GetHashMapRunnable(this, (ConcurrentHashMap)_hashmap,
+                getNextFromList(0))));
+
+        for(int i = 0; i < 3; i++)
+        futures.add(executor.submit(new GetHashMapRunnable(this, (ConcurrentHashMap)_hashmap,
+                getNextFromList(getNextBatch()))));
+
+        try {
+            for(Future f : futures)
+                f.get();
+        }catch(Throwable e) {
+            throw e;
+        }
+        executor.shutdown();
+
+        return _hashmap;
+    }
+
+    void initialize() {
+
+        pixellist = Arrays.asList(bmapper.getIntegerBitmapPixels(toSearch));
+
+        currentBatch = 0;
+        batchSize = 1000;
+    }
+
+    synchronized int getNextBatch() {
+
+        currentBatch += batchSize;
+        if(currentBatch <= pixellist.size())
+        {
+            return currentBatch;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    synchronized List<Integer> getNextFromList(int from) {
+        return Collections.unmodifiableList(pixellist.subList(from, from + batchSize));
+    }
+
 
     private int createColorInt(int[] toConvert) {
         return 0xff000000 | (toConvert[0] << 16) | (toConvert[1] << 8) | toConvert[2];
-    }
-
-    private int[] getBitmapPixels(IBitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-
-        //Create an array that can hold all the pixels of a 2d bitmap
-        int[] pixels = bitmap.getPixels(0,width,0,0,width,height);
-
-        final int[] subsetPixels = new int[width * height];
-
-        for (int row = 0; row < height; row++) {
-            System.arraycopy(pixels, (row * bitmap.getWidth()),
-                    subsetPixels, row * width, width);
-        }
-
-        return subsetPixels;
     }
 }

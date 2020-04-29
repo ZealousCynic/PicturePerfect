@@ -30,27 +30,52 @@ public class PicturePresenter implements PictureContracts.PicturePresenter {
 
         int res = result.get();
 
+        executor.shutdown();
+
         return res;
     }
 
     @Override
-    public int[] getDominantColors(IBitmap bitmap, int amount) throws ExecutionException, InterruptedException {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+    public void getDominantColors(IBitmap bitmap, int amount) {
+        ExecutorService executor = Executors.newFixedThreadPool(10);
         Future<int[]> result = executor.submit(new CallableColorCalculatorMultiple(new ColorCalculator(bitmap), amount));
 
-        int[] res = result.get();
+        try {
+            Object response = result.get();
+            if(response instanceof int[])
+            {
+                int[] res = (int[])response;
 
-        return res;
+                executor.shutdown();
+
+                view.updateDominantColorsText(res);
+                view.updateDominantColors(res);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public int[] getDominantColors(IBitmap bitmap) throws ExecutionException, InterruptedException {
+    public void getDominantColors(IBitmap bitmap) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<int[]> result = executor.submit(new CallableColorCalculatorMultiple(new ColorCalculator(bitmap), 5));
 
-        int[] res = result.get();
+        try {
+            Object response = result.get();
+            if(response instanceof int[])
+            {
+                int[] res = (int[])response;
 
-        return res;
+                executor.shutdown();
+
+                view.updateDominantColorsText(res);
+                view.updateDominantColors(res);
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
 
